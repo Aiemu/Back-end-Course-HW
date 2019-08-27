@@ -1,0 +1,2 @@
+S1: touch .gitignore #创建gitignore隱藏文件 
+S2: vim .gitignore #编辑文件，加入指定文件

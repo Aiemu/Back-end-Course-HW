@@ -76,7 +76,7 @@ def analyse():
                 for row in range(len(data) - 1, 0, -1):
                     file_out.writerow(data[row])
             else:
-                for row in range(1, len(data) - 1):
+                for row in range(1, len(data)):
                     file_out.writerow(data[row])
 
     except IOError:
@@ -89,6 +89,6 @@ def analyse():
     fo.close()
 
 # input.txt C1 DESC output-csv.txt
-# input.txt score output-csv.txt
+# input.txt C1 output-csv.txt
 
 analyse()

@@ -49,6 +49,7 @@ def analyse():
             for row in csv_data:
                 data.append(row)
 
+            print(data)
             loc = data[0].index(name)
 
             if loc == -1:
@@ -89,6 +90,7 @@ def analyse():
     fo.close()
 
 # input.txt C1 DESC output-csv.txt
-# input.txt C1 output-csv.txt
+# input.txt 3 output-csv.txt
 
-analyse()
+if __name__=="__main__":
+    analyse()

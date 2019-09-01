@@ -22,4 +22,5 @@ def cmp ():
             print('matched')
             break
 
-cmp()
+if __name__=="__main__":
+    cmp()

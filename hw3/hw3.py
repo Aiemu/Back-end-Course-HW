@@ -23,7 +23,7 @@ def analyse():
         for row in url_list:
             dict = {}
             try:
-                ret = requests.get(row, timeout = 3, headers = headers)
+                ret = requests.get(row, headers = headers)
             except TimeoutError:
                 print("Error|", row, ":Connection to this page time out")
                 continue
@@ -36,9 +36,9 @@ def analyse():
             ret.encoding = "utf-8"
             html = ret.text
 
-            dict["phone"] = re.findall(r"(?<=[^\w])(\d{7,8}|\d{11})(?=[^\w])", html)
-            dict["name"] = re.findall(r"(?<=name[:：])(.*?)[,.;\"，。；“”]", html)
-            dict["name"] = dict["name"] + re.findall(r"(?<=姓名[:：])(.*?)[,.;\"，。；“”]", html)
+            dict["phone"] = re.findall(r"(?<=[^0-9a-zA-Z_])(\d{7,8}|\d{11})(?=[^0-9a-zA-Z_])", html)
+            dict["name"] = re.findall(r"(?<=姓名[:：])(.*?)[,;\"，。；“”\n\r]", html)
+            dict["name"] = dict["name"] + re.findall(r"(?<=name[:：])(.*?)[,;\"，。；“”\n\r]", html)
             dict["url"] = re.findall(r"\s*(?<=[\s,.;，。；])网址[:：]\s*(https?://.*?)(?=[,;\"，。；“”\s])", html)
             dict["shared"] = re.findall(r"[^\n\r]*链接[^\n\r]*提取码[^\n\r]*", html)
 

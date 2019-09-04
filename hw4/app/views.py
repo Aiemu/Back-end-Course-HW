@@ -1,3 +1,7 @@
+import time
+import datetime
+import math
+
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 from django.contrib import auth
@@ -40,8 +44,6 @@ def log_in(request):
             if user and not request.user.is_authenticated:
                 login(request, user)
                 ret = JsonResponse({'user': username})
-                request.session['username'] = username
-                ret['Set-Cookie'] = "session_id=" + request.session['username']
                 return ret
             else:
                 if not request.user.is_authenticated:
@@ -53,7 +55,7 @@ def log_out(request):
     if request.method != "POST":
         return JsonResponse({'error': 'require POST'})
     if request.user.is_authenticated:
-        username = request.session['username']
+        username = request.user.username
         logout(request)
         return JsonResponse({'user': username})
     else:
@@ -115,31 +117,73 @@ def update_record(request, id_num):
                 if record.owner != request.user:
                     return JsonResponse({'error': 'unknown record'})
                 else:
-                    try:
-                        name = request.POST.get('name')
-                        record.name = name
-                    except:
-                        pass
-                    try:
-                        time = request.POST.get('time')
-                        record.time = time
-                    except:
-                        pass
-                    try:
-                        content = request.POST.get('content')
-                        record.content = content
-                    except:
-                        pass
-
                     for key in request.POST:
                         if key != 'name' and key != 'time' and key != 'content':
                             return JsonResponse({'error': 'unknown record field'})
+                        elif key == 'name':
+                            name = request.POST.get('name')
+                            record.name = name
+                        elif key == 'time':
+                            time = request.POST.get('time')
+                            record.time = time
+                        else:
+                            content = request.POST.get('content')
+                            record.content = content
+                    record.save()
                     return JsonResponse({'record_id': id_num})
     else:
         return JsonResponse({'error': 'please login'})
 
 def get_record(request, id_num):
-    pass
+    if request.user.is_authenticated:
+        if request.method != "GET":
+            return JsonResponse({'error': 'require GET'})
+        else:
+            if not models.Records.objects.filter(id=id_num):
+                return JsonResponse({'error': 'unknown record'})
+            else:
+                record = models.Records.objects.get(id=id_num)
+                if record.owner != request.user:
+                    return JsonResponse({'error': 'unknown record'})
+                else:
+                    Time = record.time
+                    ms = Time % 1000
+                    Time /= 1000
+                    Time = int(Time)
+                    timearr = time.localtime(Time)
+                    Time = time.strftime("%Y-%m-%d %H:%M:%S", timearr)
+                    Time = str(Time)
+                    ms = str(ms)
+                    while len(ms) < 3:
+                        ms = '0' + ms
+                    Time = Time + '.' + ms
+                    return JsonResponse({'record': id_num, 'name': record.name, 'content': record.content, 'time': Time})
+    else:
+        return JsonResponse({'error': 'please login'})
 
-def search_record():
-    pass
+def search_record(request):
+    if request.user.is_authenticated:
+        if request.method != "GET":
+            return JsonResponse({'error': 'require GET'})
+        else:
+            List = []
+            name = request.GET.get('name')
+            co_owner = models.Records.objects.filter(owner=request.user)
+            for rec in co_owner:
+                if rec.name.find(name) >= 0:
+                    Time = rec.time
+                    ms = Time % 1000
+                    Time /= 1000
+                    Time = int(Time)
+                    timearr = time.localtime(Time)
+                    Time = time.strftime("%Y-%m-%d %H:%M:%S", timearr)
+                    Time = str(Time)
+                    ms = str(ms)
+                    while len(ms) < 3:
+                        ms = '0' + ms
+                    Time = Time + '.' + ms
+                    Dict = {'record': rec.id, 'name': rec.name, 'content': rec.content, 'time': Time}
+                    List.append(Dict)
+            return JsonResponse({'list': List})
+    else:
+        return JsonResponse({'error': 'please login'})

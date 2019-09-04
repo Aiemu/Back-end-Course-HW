@@ -1,4 +1,5 @@
 import requests
+import sys
 import json
 import re
 import os
@@ -10,11 +11,10 @@ def get_url(html):
     return ret
 
 def analyse():
-    cmd = input("")
-    cmd_list = cmd.split(" ")
+    cmd_list = sys.argv
     
-    input_path = cmd_list[0]
-    output_path = cmd_list[1]
+    input_path = cmd_list[1]
+    output_path = cmd_list[2]
     url_list = []
     headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:67.0) Gecko/20100101 Firefox/67.0",}
  
@@ -28,8 +28,10 @@ def analyse():
                 print("Error|", row, ":Connection to this page time out")
                 continue
                 
-            if ret.status_code != 200:
+            if ret.status_code < 200 or ret.status_code >= 400:
                 print("Error|", row, ":This page returns", ret.status_code)
+                continue
+            else:    
                 if ret.status_code == 301 or ret.status_code == 302:
                     ret = get_url(ret)
 

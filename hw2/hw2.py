@@ -1,4 +1,5 @@
 import csv
+import sys
 
 def quick_sort(list, left, right, loc):
     if left >= right:
@@ -25,19 +26,18 @@ def quick_sort(list, left, right, loc):
     quick_sort(list, r_plus, right, loc)
 
 def analyse():
-    cmd = input("")
     DESC = False
-    cmd_list = cmd.split(" ")
+    cmd_list = sys.argv
 
-    input_path = cmd_list[0]
+    print(cmd_list)
+    input_path = cmd_list[1]
     output_path = cmd_list[len(cmd_list) - 1]
-    name = cmd_list[1]
+    name = cmd_list[2]
     data = []
 
-
-    if len(cmd_list) == 3:
+    if len(cmd_list) == 4:
         pass
-    elif len(cmd_list) == 4 and cmd_list[2] == "DESC": 
+    elif len(cmd_list) == 5 and cmd_list[3] == "DESC": 
         DESC = True
     else: 
         print("Error: Wrong command format!")
@@ -45,11 +45,14 @@ def analyse():
     
     try:
         with open(input_path, "r") as fi:
-            csv_data = csv.reader(fi)
-            for row in csv_data:
-                data.append(row)
+            csv_data = fi.read()
+            csv_data = csv_data.split("\n")
 
-            print(data)
+            for row in csv_data:
+                List = []
+                List = row.split(",")
+                data.append(List)
+
             loc = data[0].index(name)
 
             if loc == -1:
@@ -62,7 +65,7 @@ def analyse():
                     float(data[row][loc])
                 except:
                     del data[row]
-
+            print 
             quick_sort(data, 1, len(data) - 1, loc)
 
     except IOError:
@@ -71,14 +74,16 @@ def analyse():
 
     try:
         with open(output_path, "w") as fo:
-            file_out = csv.writer(fo)
-            file_out.writerow(data[0])
+            tmp = ",".join(data[0])
+            fo.write(tmp + "\n")
             if DESC:
-                for row in range(len(data) - 1, 0, -1):
-                    file_out.writerow(data[row])
+                for row in range(len(data) - 1, 0, -1):    
+                    tmp = ",".join(data[row])
+                    fo.write(tmp + "\n")
             else:
-                for row in range(1, len(data)):
-                    file_out.writerow(data[row])
+                for row in range(1, len(data)):    
+                    tmp = ",".join(data[row])
+                    fo.write(tmp + "\n")
 
     except IOError:
         print("Error: Output file creat failed!")
